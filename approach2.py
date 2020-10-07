@@ -1,5 +1,6 @@
 import numpy as np
 import random
+
 np.random.seed(0)
 
 def generate_zero():
@@ -7,7 +8,6 @@ def generate_zero():
 
 def generate_one():
     return random.uniform(50, 100) / 100
-
 
 def generate_xor_XY(num_data_points):
     Xs, Ys = [], []
@@ -17,10 +17,10 @@ def generate_xor_XY(num_data_points):
         # xor(1, 0) -> 1
         Xs.append([generate_one(), generate_zero()]); Ys.append([1])
         # xor(0, 1) -> 1
-        Xs.append([generate_zero(), generate_one()]);
+        Xs.append([generate_zero(), generate_one()])
         Ys.append([1])
         # xor(1, 1) -> 0
-        Xs.append([generate_one(), generate_one()]);
+        Xs.append([generate_one(), generate_one()])
         Ys.append([0])
     return Xs, Ys
 
@@ -28,12 +28,29 @@ def sigmoid(x): # Returns values that sums to one.
     return 1 / (1 + np.exp(-x))
 
 def sigmoid_derivative(sx):
-    # See https://math.stackexchange.com/a/1225116
     return sx * (1 - sx)
 
 # Cost functions.
 def cost(predicted, truth):
-    return (truth - predicted)
+    if len(truth) == len(predicted):
+        return truth - predicted
+        # return (1/360)*np.sum((truth - predicted)**2)
+        # matrix_form = sum([(x - y) ** 2 for x, y in zip(truth, predicted)]) / len(truth)
+        # with open("cost.txt", "w") as f:
+        #     number = matrix_form
+        #     f.write(str(number) + "\n")
+        # return np.ones([360,1])*matrix_form
+    else:
+        return None
+    # memo = truth - predicted
+    # summary = np.sum((truth - predicted)**2)
+    # result = (1./360)*summary
+    # matrix_form = np.ones([len(memo),len(memo[0])])*result
+    # # print(matrix_form.shape)
+    # with open("cost.txt", "w") as f:
+    #     number = matrix_form
+    #     f.write(str(number) + "\n")
+    # return matrix_form
 
 # Shuffle the order of the inputs
 X, Y = generate_xor_XY(100)
@@ -43,7 +60,7 @@ _temp = list(zip(X, Y))
 random.shuffle(_temp)
 xor_input_shuff, xor_output_shuff = map(np.array, zip(*_temp))
 
-# Lets split the data to 90-10.
+# Split the data to 90-10. Building training set and testing set
 train_split = int(len(X) / 100 * 90)
 X_train = xor_input_shuff[:train_split]
 Y_train = xor_output_shuff[:train_split]
@@ -62,7 +79,7 @@ W1 = np.random.random((input_dim, hidden_dim))
 output_dim = len(Y_train.T)
 # Initialize weights between the hidden layers and the output layer.
 W2 = np.random.random((hidden_dim, output_dim))
-num_epochs = 2000
+num_epochs = 1500
 learning_rate = 0.03
 
 for epoch_n in range(num_epochs):
@@ -84,7 +101,6 @@ for epoch_n in range(num_epochs):
     # How much did each layer1 value contribute to the layer2 error (according to the weights)?
     layer1_error = np.dot(layer2_delta, W2.T)
     layer1_delta = layer1_error * sigmoid_derivative(layer1)
-
     # update weights
     W2 += learning_rate * np.dot(layer1.T, layer2_delta)
     W1 += learning_rate * np.dot(layer0.T, layer1_delta)
