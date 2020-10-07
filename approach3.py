@@ -5,6 +5,8 @@
 # 0 0 --> 0
 import numpy as np
 import matplotlib.pyplot as plt
+
+
 # Activation function:sigmoid
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
@@ -31,7 +33,10 @@ def forward(x, w1, w2, predict = False):
 
 # Backprop function
 def backprop(a2,z0,z1,z2,y):
+    # Using SGD to do the derivative to MSE, making 1/2n*(z2 - y)**2 to 1/n*(z2 - y)
+    # We look for the derivative equation of the Loss function
     delta2 = z2 - y
+    # print(delta2)
     Delta2 = np.matmul(z1.T, delta2)
     delta1 = (delta2.dot(w2[1:,:].T))*sigmoid_drivative(a1)
     Delta1 = np.matmul(z0.T, delta1)
@@ -48,11 +53,13 @@ y = np.array([[1],[1],[0],[0]])
 
 # init weights
 w1 = np.random.randn(3,5)
+# outputing 4x1, given scores
 w2 = np.random.randn(6,1)
 
 # init learning rate
 lr = 0.09
 
+# init cost matrix for memo
 costs = []
 
 # init epochs
@@ -72,17 +79,19 @@ for i in range(epochs):
     w1 -= lr*(1/m)*Delta1
     w2 -= lr*(1/m)*Delta2
 
+
     # Add costs to list for plotting
     c = np.mean(np.abs(delta2))
+    # print(c)
     costs.append(c)
 
     if i % 1000 == 0:
         print(f"Iteration:{i}. Error: {c}")
 
-    # Training complete
+# Training complete
 print("Training Complete")
 
-    # Make predictions
+# Make predictions
 z3 = forward(X, w1, w2, True)
 print("Percentages: ")
 print(z3)
@@ -90,7 +99,6 @@ print("Predictions: ")
 print(np.round(z3))
 
 
-    # Plot cost
-
+# Plot cost
 plt.plot(costs)
 plt.show()
